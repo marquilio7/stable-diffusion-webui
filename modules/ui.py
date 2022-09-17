@@ -337,6 +337,8 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                     custom_inputs = modules.scripts.scripts_txt2img.setup_ui(is_img2img=False)
 
             with gr.Column(variant='panel'):
+                progressbar = gr.HTML(elem_id="progressbar")
+
                 with gr.Group():
                     txt2img_preview = gr.Image(elem_id='txt2img_preview', visible=False)
                     txt2img_gallery = gr.Gallery(label='Output', elem_id='txt2img_gallery').style(grid=4)
@@ -348,8 +350,6 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                         send_to_inpaint = gr.Button('Send to inpaint')
                         send_to_extras = gr.Button('Send to extras')
                         interrupt = gr.Button('Interrupt')
-
-                progressbar = gr.HTML(elem_id="progressbar")
 
                 with gr.Group():
                     html_info = gr.HTML()
@@ -474,6 +474,8 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                     custom_inputs = modules.scripts.scripts_img2img.setup_ui(is_img2img=True)
 
             with gr.Column(variant='panel'):
+                progressbar = gr.HTML(elem_id="progressbar")
+
                 with gr.Group():
                     img2img_preview = gr.Image(elem_id='img2img_preview', visible=False)
                     img2img_gallery = gr.Gallery(label='Output', elem_id='img2img_gallery').style(grid=4)
@@ -487,7 +489,6 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
                         interrupt = gr.Button('Interrupt')
                         img2img_save_style = gr.Button('Save prompt as style')
 
-                progressbar = gr.HTML(elem_id="progressbar")
 
                 with gr.Group():
                     html_info = gr.HTML()
@@ -758,7 +759,12 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
             if comp_args and isinstance(comp_args, dict) and comp_args.get('visible') is False:
                 continue
 
+            oldval = opts.data.get(key, None)
             opts.data[key] = value
+
+            if oldval != value and opts.data_labels[key].onchange is not None:
+                opts.data_labels[key].onchange()
+
             up.append(comp.update(value=value))
 
         opts.save(shared.config_filename)
@@ -794,6 +800,11 @@ def create_ui(txt2img, img2img, run_extras, run_pnginfo):
 
     with open(os.path.join(script_path, "style.css"), "r", encoding="utf8") as file:
         css = file.read()
+
+    if os.path.exists(os.path.join(script_path, "user.css")):
+        with open(os.path.join(script_path, "user.css"), "r", encoding="utf8") as file:
+            usercss = file.read()
+            css += usercss
 
     if not cmd_opts.no_progressbar_hiding:
         css += css_hide_progressbar
