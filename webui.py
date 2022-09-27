@@ -50,6 +50,7 @@ def wrap_gradio_gpu_call(func):
         shared.state.sampling_step = 0
         shared.state.job_count = -1
         shared.state.job_no = 0
+        shared.state.job_timestamp = shared.state.get_job_timestamp()
         shared.state.current_latent = None
         shared.state.current_image = None
         shared.state.current_image_sampling_step = 0
@@ -84,7 +85,8 @@ def webui():
         txt2img=wrap_gradio_gpu_call(modules.txt2img.txt2img),
         img2img=wrap_gradio_gpu_call(modules.img2img.img2img),
         run_extras=wrap_gradio_gpu_call(modules.extras.run_extras),
-        run_pnginfo=modules.extras.run_pnginfo
+        run_pnginfo=modules.extras.run_pnginfo,
+        run_modelmerger=modules.extras.run_modelmerger
     )
 
     demo.launch(
